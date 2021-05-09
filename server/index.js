@@ -17,16 +17,15 @@ app.use(express.json());
 app.use("/", route);
 
 io.on('connection', (socket) => {
-    socket.on('join-room', (roomId, uid) => {
+    socket.on('join-room', (roomId, userId) => {
         socket.join(roomId);
         console.log(`${roomId}방에 조인`);
-        socket.broadcast.to(roomId).emit('user-join', roomId, uid);
-    });
+        socket.broadcast.to(roomId).emit('user-join', roomId, userId);
 
-    socket.on('send-message', (roomId, uid, message) => {
-        socket.broadcast.to(roomId).emit('broadcast-message', uid, message);
-    });
-    
+        socket.on('disconnect', () => {
+            socket.broadcast.to(roomId).emit('user-out', userId);
+        });
+    });    
 })
   
 http.listen(port, () => {
